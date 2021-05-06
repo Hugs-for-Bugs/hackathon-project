@@ -1,6 +1,7 @@
 import db
 
 from telebot import types
+from typing import List
 
 
 def create_inline_keyboard_markup(**kwargs: dict) -> types.InlineKeyboardMarkup:

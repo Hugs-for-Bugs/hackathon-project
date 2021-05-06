@@ -13,6 +13,7 @@ def create_users_table() -> None:
         """create table if not exists users(
             id integer NOT NULL PRIMARY KEY AUTOINCREMENT,
             tg_user_id integer UNIQUE,
+            location text,
             page text NOT NULL,
             reg_date text
         )""",
