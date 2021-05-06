@@ -10,7 +10,7 @@ EMPLOYER_MESSAGE = """
 # KBs
 START_KB = {
     "text": ["Поиск в боте", "Поиск в онлайн", "Работодателю", "Сменить локацию"],
-    "callbacks": ["search_bot", "seach_online", "employer", "ch_location"],
+    "callbacks": ["search_bot", "search_online", "employer", "ch_location"],
 }
 
 EMPLOYER_KB = {

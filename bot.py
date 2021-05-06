@@ -3,6 +3,8 @@ import consts
 import db
 import utils
 
+from parser import work_ua
+
 from cfg import config_dict
 from typing import Union
 from telebot import types
@@ -39,11 +41,11 @@ def all_text(msg) -> None:
         table="users", field="page", pivot="tg_user_id", pivot_value=msg.chat.id)
 
     if page.startswith("input"):
-        value_to_input = page.split("_", 1)[1]
+        type_of_value_to_input = page.split("_", 1)[1]
 
-        if value_to_input == "location":
+        if type_of_value_to_input == "location":
             db.change_value_in_DB(table="users", field_to_update="location",
-                                  field_to_update_value=msg.text, pivot="tg_user_id", pivot_value=msg.chat.id)
+                                  field_to_update_value=msg.text.lower(), pivot="tg_user_id", pivot_value=msg.chat.id)
 
             bot.send_message(msg.chat.id, "Ваша локация успешно обновлена")
 
@@ -54,11 +56,35 @@ def all_text(msg) -> None:
                              )
             db.change_value_in_DB(table="users", field_to_update="page",
                                   field_to_update_value="start", pivot="tg_user_id", pivot_value=msg.chat.id)
-        else:
-            value_to_input = value_to_input.split("_")[1]
+        elif type_of_value_to_input == "vacancy":
+            location = db.return_value_from_DB(
+                table="users", field="location", pivot="tg_user_id", pivot_value=msg.chat.id)
 
-            db.change_value_in_DB(table="vacancies", field_to_update=value_to_input,
-                                  field_to_update_value=msg.text, pivot="tg_user_id", pivot_value=msg.chat.id)
+            vacancies = work_ua.work(msg.text, location)
+
+            if vacancies:
+                msg_for_user: str = ""
+
+                for vacancy in vacancies.values():
+                    msg_for_user += f"[{vacancy['title']}]({vacancy['href']})\n{vacancy['info'].strip()}\n\n"
+
+                bot.send_message(msg.chat.id, msg_for_user)
+            else:
+                bot.send_message(
+                    msg.chat.id, "Для вашей локации ничего не найдено")
+                bot.send_message(msg.chat.id,
+                                 consts.START_MESSAGE,
+                                 reply_markup=utils.create_inline_keyboard_markup(
+                                     kb=consts.START_KB, group=msg.text),
+                                 )
+                db.change_value_in_DB(table="users", field_to_update="page",
+                                      field_to_update_value="start", pivot="tg_user_id", pivot_value=msg.chat.id)
+
+        else:
+            type_of_value_to_input = type_of_value_to_input.split("_")[1]
+
+            db.change_value_in_DB(table="vacancies", field_to_update=type_of_value_to_input,
+                                  field_to_update_value=msg.text.lower(), pivot="tg_user_id", pivot_value=msg.chat.id)
             bot.send_message(msg.chat.id, "Информация успешно обновлена")
 
             is_full = db.check_if_vacancy_is_full(msg.chat.id)
@@ -85,7 +111,7 @@ def change_location_from_inlinekb(call) -> None:
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("search_bot"))
-def seach_vacancy_from_inlinekb(call) -> None:
+def search_vacancy_in_bot_from_inlinekb(call) -> None:
     location = db.return_value_from_DB(
         table="users", field="location", pivot="tg_user_id", pivot_value=call.message.chat.id)
 
@@ -100,6 +126,19 @@ def seach_vacancy_from_inlinekb(call) -> None:
             msg_for_user += f"{i + 1}.\n*Название*: {vacancy[2]}\n*О чем*:\n{vacancy[3]}\n*Контактная информация*:\n{vacancy[5]}\n\n[Работодатель](tg://user?id={vacancy[1]})\n\n"
 
         bot.send_message(call.message.chat.id, msg_for_user)
+
+    bot.answer_callback_query(call.id)
+
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("search_online"))
+def search_vacancy_in_online_from_inlinekb(call) -> None:
+    location = db.return_value_from_DB(
+        table="users", field="location", pivot="tg_user_id", pivot_value=call.message.chat.id)
+
+    bot.send_message(call.message.chat.id,
+                     "Введите интересующую вас вакансию")
+    db.change_value_in_DB(table="users", field_to_update="page",
+                          field_to_update_value="input_vacancy", pivot="tg_user_id", pivot_value=call.message.chat.id)
 
     bot.answer_callback_query(call.id)
 
