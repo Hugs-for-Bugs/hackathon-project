@@ -22,7 +22,7 @@ def start(msg) -> None:
         table="users", field="location", pivot="tg_user_id", pivot_value=msg.chat.id)
 
     if not location:
-        bot.send_message(msg.chat.id, "Enter your location for job search")
+        bot.send_message(msg.chat.id, "*Enter your location for job search:*")
         db.change_value_in_DB(table="users", field_to_update="page",
                               field_to_update_value="input_location", pivot="tg_user_id", pivot_value=msg.chat.id)
     else:
@@ -68,7 +68,8 @@ def all_text(msg) -> None:
                 for vacancy in vacancies.values():
                     msg_for_user += f"[{vacancy['title']}]({vacancy['href']})\n{vacancy['info'].strip()}\n\n"
 
-                bot.send_message(msg.chat.id, msg_for_user)
+                bot.send_message(msg.chat.id, msg_for_user,
+                                 disable_web_page_preview=True)
             else:
                 bot.send_message(
                     msg.chat.id, "Nothing found for your location")
@@ -85,7 +86,8 @@ def all_text(msg) -> None:
 
             db.change_value_in_DB(table="vacancies", field_to_update=type_of_value_to_input,
                                   field_to_update_value=msg.text.lower(), pivot="tg_user_id", pivot_value=msg.chat.id)
-            bot.send_message(msg.chat.id, "Information has been successfully updated")
+            bot.send_message(
+                msg.chat.id, "Information has been successfully updated")
 
             is_full = db.check_if_vacancy_is_full(msg.chat.id)
 
@@ -103,7 +105,7 @@ def all_text(msg) -> None:
 @bot.callback_query_handler(func=lambda call: call.data.startswith("ch_location"))
 def change_location_from_inlinekb(call) -> None:
     bot.send_message(call.message.chat.id,
-                     "Enter your location for job search")
+                     "*Enter your location for job search:*")
     db.change_value_in_DB(table="users", field_to_update="page",
                           field_to_update_value="input_location", pivot="tg_user_id", pivot_value=call.message.chat.id)
 
@@ -136,7 +138,7 @@ def search_vacancy_in_online_from_inlinekb(call) -> None:
         table="users", field="location", pivot="tg_user_id", pivot_value=call.message.chat.id)
 
     bot.send_message(call.message.chat.id,
-                     "Enter the vacancy you are interested in")
+                     "*Enter the vacancy you are interested in:*")
     db.change_value_in_DB(table="users", field_to_update="page",
                           field_to_update_value="input_vacancy", pivot="tg_user_id", pivot_value=call.message.chat.id)
 
@@ -187,13 +189,13 @@ def set_value_for_vacancy(call) -> None:
     text: str
 
     if value_to_set == "title":
-        text = "Enter a title for the job"
+        text = "*Enter a title for the job:*"
     elif value_to_set == "info":
-        text = "Enter vacancy description"
+        text = "*Enter vacancy description:*"
     elif value_to_set == "location":
-        text = "Enter the location of the vacancy"
+        text = "*Enter the location of the vacancy:*"
     elif value_to_set == "contacts":
-        text = "Enter the contacts of your organization"
+        text = "*Enter the contacts of your organization:*"
 
     bot.send_message(call.message.chat.id, text)
 
