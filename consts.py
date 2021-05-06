@@ -1,7 +1,6 @@
 # Messages
 START_MESSAGE = """
 *Бот для поиска ваканский*
-`/search` - для поиска с помощью агрегатора
 """
 EMPLOYER_MESSAGE = """
 Вы находитель в меню заполнения заявки
@@ -10,13 +9,13 @@ EMPLOYER_MESSAGE = """
 
 # KBs
 START_KB = {
-    "text": ["Поиск", "Работодателю", "Сменить локацию"],
-    "callbacks": ["search", "employer", "ch_location"],
+    "text": ["Поиск в боте", "Поиск в онлайн", "Работодателю", "Сменить локацию"],
+    "callbacks": ["search_bot", "seach_online", "employer", "ch_location"],
 }
 
 EMPLOYER_KB = {
-    "text": ["Название", "Информация", "Локация", "Назад"],
-    "callbacks": ["set_title", "set_info", "set_location", "back_{page}"],
+    "text": ["Название", "Информация", "Локация", "Контакты", "Назад"],
+    "callbacks": ["set_title", "set_info", "set_location", "set_contacts", "back_{page}"],
 }
 
 BACK_KB = {

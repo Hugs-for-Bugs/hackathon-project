@@ -26,6 +26,7 @@ def create_tables() -> None:
             title text,
             info text,
             location text,
+            contacts text,
             reg_date text
         )""",
     )
@@ -72,7 +73,7 @@ def check_if_vacancy_is_full(tg_user_id: int) -> bool:
 
     cursor.execute(sql_stmt, (tg_user_id,))
 
-    return not cursor.fetchall()[-1].count(None)
+    return not (None in cursor.fetchall()[-1])
 
 
 def insert_empty(tg_user_id: int) -> None:
@@ -81,3 +82,18 @@ def insert_empty(tg_user_id: int) -> None:
     cursor.execute(sql_stmt, (tg_user_id,))
 
     conn.commit()
+
+
+def get_vacancies(location: str = "") -> List[Tuple[Union[str, int]]]:
+    sql_stmt: str
+
+    if location:
+        sql_stmt = "select * from vacancies where location = ?"
+
+        cursor.execute(sql_stmt, (location,))
+    else:
+        sql_stmt = "select * from vacancies"
+
+        cursor.execute(sql_stmt)
+
+    return [vacancy for vacancy in cursor.fetchall() if not (None in vacancy)]

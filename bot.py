@@ -55,34 +55,53 @@ def all_text(msg) -> None:
             db.change_value_in_DB(table="users", field_to_update="page",
                                   field_to_update_value="start", pivot="tg_user_id", pivot_value=msg.chat.id)
         else:
+            value_to_input = value_to_input.split("_")[1]
+
+            db.change_value_in_DB(table="vacancies", field_to_update=value_to_input,
+                                  field_to_update_value=msg.text, pivot="tg_user_id", pivot_value=msg.chat.id)
+            bot.send_message(msg.chat.id, "Информация успешно обновлена")
+
             is_full = db.check_if_vacancy_is_full(msg.chat.id)
 
             if is_full:
-                bot.send_message(msg.chat.id, "Вакансия успешно добавлена")
+                bot.send_message(
+                    msg.chat.id, "Вакансия успешно добавлена")
                 bot.send_message(msg.chat.id,
                                  consts.START_MESSAGE,
                                  reply_markup=utils.create_inline_keyboard_markup(
                                      kb=consts.START_KB),
                                  )
                 db.insert_empty(msg.chat.id)
-            else:
-                value_to_input = value_to_input.split("_")[1]
 
-                db.change_value_in_DB(table="vacancies", field_to_update=value_to_input,
-                                      field_to_update_value=msg.text, pivot="tg_user_id", pivot_value=msg.chat.id)
-                bot.send_message(msg.chat.id, "Информация успешно обновлена")
 
-                is_full = db.check_if_vacancy_is_full(msg.chat.id)
+@bot.callback_query_handler(func=lambda call: call.data.startswith("ch_location"))
+def change_location_from_inlinekb(call) -> None:
+    bot.send_message(call.message.chat.id,
+                     "Введите Вашу локацию для поиска работы")
+    db.change_value_in_DB(table="users", field_to_update="page",
+                          field_to_update_value="input_location", pivot="tg_user_id", pivot_value=call.message.chat.id)
 
-                if is_full:
-                    bot.send_message(
-                        msg.chat.id, "Вакансия успешно добавлена")
-                    bot.send_message(msg.chat.id,
-                                     consts.START_MESSAGE,
-                                     reply_markup=utils.create_inline_keyboard_markup(
-                                         kb=consts.START_KB),
-                                     )
-                    db.insert_empty(msg.chat.id)
+    bot.answer_callback_query(call.id)
+
+
+@bot.callback_query_handler(func=lambda call: call.data.startswith("search_bot"))
+def seach_vacancy_from_inlinekb(call) -> None:
+    location = db.return_value_from_DB(
+        table="users", field="location", pivot="tg_user_id", pivot_value=call.message.chat.id)
+
+    vacancies = db.get_vacancies(location)
+    if not len(vacancies):
+        bot.send_message(call.message.chat.id,
+                         "В выбранной вами локации нет ваканский")
+    else:
+        msg_for_user: str = ""
+
+        for i, vacancy in enumerate(vacancies):
+            msg_for_user += f"{i + 1}.\n*Название*: {vacancy[2]}\n*О чем*:\n{vacancy[3]}\n*Контактная информация*:\n{vacancy[5]}\n\n[Работодатель](tg://user?id={vacancy[1]})\n\n"
+
+        bot.send_message(call.message.chat.id, msg_for_user)
+
+    bot.answer_callback_query(call.id)
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("employer"))
@@ -123,7 +142,7 @@ def back_to(call) -> None:
 
 
 @bot.callback_query_handler(func=lambda call: call.data.startswith("set"))
-def back_to(call) -> None:
+def set_value_for_vacancy(call) -> None:
     value_to_set = call.data.split("_")[1]
 
     text: str
@@ -134,6 +153,8 @@ def back_to(call) -> None:
         text = "Введите описание вакансии"
     elif value_to_set == "location":
         text = "Введите местонахождение вакансии"
+    elif value_to_set == "contacts":
+        text = "Введи контакты вашей организации"
 
     bot.send_message(call.message.chat.id, text)
 
