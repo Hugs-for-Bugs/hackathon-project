@@ -1,5 +1,4 @@
 # hackathon-project
-The Description of Job Search Bot
 This bot was created to search for vacancies by a team of young developers «Hugs for bugs». The bot was developed to solve a social problem - unemployment as part of the Hackathon 2021 project.
 Bot functionality:
 1) For the employer
