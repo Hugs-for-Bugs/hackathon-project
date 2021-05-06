@@ -22,7 +22,7 @@ def start(msg) -> None:
         table="users", field="location", pivot="tg_user_id", pivot_value=msg.chat.id)
 
     if not location:
-        bot.send_message(msg.chat.id, "Введите Вашу локацию для поиска работы")
+        bot.send_message(msg.chat.id, "Enter your location for job search")
         db.change_value_in_DB(table="users", field_to_update="page",
                               field_to_update_value="input_location", pivot="tg_user_id", pivot_value=msg.chat.id)
     else:
@@ -47,7 +47,7 @@ def all_text(msg) -> None:
             db.change_value_in_DB(table="users", field_to_update="location",
                                   field_to_update_value=msg.text.lower(), pivot="tg_user_id", pivot_value=msg.chat.id)
 
-            bot.send_message(msg.chat.id, "Ваша локация успешно обновлена")
+            bot.send_message(msg.chat.id, "Your Location updated successfully")
 
             bot.send_message(msg.chat.id,
                              consts.START_MESSAGE,
@@ -71,7 +71,7 @@ def all_text(msg) -> None:
                 bot.send_message(msg.chat.id, msg_for_user)
             else:
                 bot.send_message(
-                    msg.chat.id, "Для вашей локации ничего не найдено")
+                    msg.chat.id, "Nothing found for your location")
                 bot.send_message(msg.chat.id,
                                  consts.START_MESSAGE,
                                  reply_markup=utils.create_inline_keyboard_markup(
@@ -85,13 +85,13 @@ def all_text(msg) -> None:
 
             db.change_value_in_DB(table="vacancies", field_to_update=type_of_value_to_input,
                                   field_to_update_value=msg.text.lower(), pivot="tg_user_id", pivot_value=msg.chat.id)
-            bot.send_message(msg.chat.id, "Информация успешно обновлена")
+            bot.send_message(msg.chat.id, "Information has been successfully updated")
 
             is_full = db.check_if_vacancy_is_full(msg.chat.id)
 
             if is_full:
                 bot.send_message(
-                    msg.chat.id, "Вакансия успешно добавлена")
+                    msg.chat.id, "Vacancy successfully added")
                 bot.send_message(msg.chat.id,
                                  consts.START_MESSAGE,
                                  reply_markup=utils.create_inline_keyboard_markup(
@@ -103,7 +103,7 @@ def all_text(msg) -> None:
 @bot.callback_query_handler(func=lambda call: call.data.startswith("ch_location"))
 def change_location_from_inlinekb(call) -> None:
     bot.send_message(call.message.chat.id,
-                     "Введите Вашу локацию для поиска работы")
+                     "Enter your location for job search")
     db.change_value_in_DB(table="users", field_to_update="page",
                           field_to_update_value="input_location", pivot="tg_user_id", pivot_value=call.message.chat.id)
 
@@ -118,12 +118,12 @@ def search_vacancy_in_bot_from_inlinekb(call) -> None:
     vacancies = db.get_vacancies(location)
     if not len(vacancies):
         bot.send_message(call.message.chat.id,
-                         "В выбранной вами локации нет ваканский")
+                         "There are no vacancies in the location you selected")
     else:
         msg_for_user: str = ""
 
         for i, vacancy in enumerate(vacancies):
-            msg_for_user += f"{i + 1}.\n*Название*: {vacancy[2]}\n*О чем*:\n{vacancy[3]}\n*Контактная информация*:\n{vacancy[5]}\n\n[Работодатель](tg://user?id={vacancy[1]})\n\n"
+            msg_for_user += f"{i + 1}.\n*Title*: {vacancy[2]}\n*About what*:\n{vacancy[3]}\n*Contact Information*:\n{vacancy[5]}\n\n[Employer](tg://user?id={vacancy[1]})\n\n"
 
         bot.send_message(call.message.chat.id, msg_for_user)
 
@@ -136,7 +136,7 @@ def search_vacancy_in_online_from_inlinekb(call) -> None:
         table="users", field="location", pivot="tg_user_id", pivot_value=call.message.chat.id)
 
     bot.send_message(call.message.chat.id,
-                     "Введите интересующую вас вакансию")
+                     "Enter the vacancy you are interested in")
     db.change_value_in_DB(table="users", field_to_update="page",
                           field_to_update_value="input_vacancy", pivot="tg_user_id", pivot_value=call.message.chat.id)
 
@@ -187,13 +187,13 @@ def set_value_for_vacancy(call) -> None:
     text: str
 
     if value_to_set == "title":
-        text = "Введите заголовок для вакансии"
+        text = "Enter a title for the job"
     elif value_to_set == "info":
-        text = "Введите описание вакансии"
+        text = "Enter vacancy description"
     elif value_to_set == "location":
-        text = "Введите местонахождение вакансии"
+        text = "Enter the location of the vacancy"
     elif value_to_set == "contacts":
-        text = "Введи контакты вашей организации"
+        text = "Enter the contacts of your organization"
 
     bot.send_message(call.message.chat.id, text)
 
