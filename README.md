@@ -9,3 +9,6 @@ Bot functionality:
 -  the ability to search for a job online;
 -  the ability to search for a job from vacancies which were added to the bot database;
 -  the ability to change location.
+
+How to start?
+You need to install using pip bs4, lxml, pytelegrambotapi, dotenv packages, create .env and write there token (BOT_TOKEN) values and database path (DATABASE), and then run with python run.py
