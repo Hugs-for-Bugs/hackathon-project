@@ -1,3 +1,3 @@
-from project.bot.commands import *
-from project.bot.callback_handlers import *
-from project.bot.text_handlers import *
+from project.bot.handlers.commands import *
+from project.bot.handlers.callbacks import *
+from project.bot.handlers.text import *
