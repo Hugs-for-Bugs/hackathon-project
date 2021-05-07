@@ -1,11 +1,6 @@
-import sqlite3
+from project.db import cursor, conn
 
-from cfg import config_dict
 from typing import Union, List, Tuple
-
-
-conn = sqlite3.connect(config_dict["DATABASE"])
-cursor = conn.cursor()
 
 
 def create_tables() -> None:
