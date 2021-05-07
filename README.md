@@ -17,7 +17,7 @@ You need to install using pip bs4, lxml, pytelegrambotapi, dotenv packages, crea
 cd project
 touch .env
 echo "BOT_TOKEN=<YOUR_BOT_TOKEN>" > .env
-echo "DATABASE=<DATABASE>" >> .env
+echo "DATABASE=<DATABASE_NAME>" >> .env
 cd ..
 python3 run.py
 ```
