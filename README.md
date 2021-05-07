@@ -11,4 +11,13 @@ Bot functionality:
 -  the ability to change location.
 
 How to start?
-You need to install using pip bs4, lxml, pytelegrambotapi, dotenv packages, create .env and write there token (BOT_TOKEN) and database path (DATABASE), and then run with python run.py
+You need to install using pip bs4, lxml, pytelegrambotapi, dotenv packages, create .env in project folder and write token (BOT_TOKEN) and database path (DATABASE), and then run with python run.py
+
+```shell script
+cd project
+touch .env
+echo "BOT_TOKEN=<YOUR_BOT_TOKEN>" > .env
+echo "DATABASE=<DATABASE>" >> .env
+cd ..
+python3 run.py
+```
